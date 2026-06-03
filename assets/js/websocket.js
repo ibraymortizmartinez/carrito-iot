@@ -3,7 +3,7 @@
 // ============================================================================
 
 // Forzamos a que el HUD (aunque esté en GitHub) busque el servidor dentro de tu laptop
-const SERVER_IP = "127.0.0.1"; 
+const SERVER_IP = "10.54.189.128"; 
 
 const WS_URL = `ws://${SERVER_IP}:5001/`;
 
