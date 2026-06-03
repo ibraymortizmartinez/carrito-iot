@@ -1,11 +1,9 @@
 // ============================================================================
-// CONFIGURACIÓN DINÁMICA DE ENDPOINTS (S.T.A.R.K. ROVER INTEGRATED OPERATIONS)
+// CONFIGURACIÓN DE ENDPOINTS PARA DESPLIEGUE DESDE GITHUB PAGES
 // ============================================================================
 
-// Detecta automáticamente la procedencia del Host y redirige al puerto del WebSocket (5001)
-const SERVER_IP = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
-    ? "127.0.0.1" 
-    : (window.location.hostname || "127.0.0.1");
+// Forzamos a que el HUD (aunque esté en GitHub) busque el servidor dentro de tu laptop
+const SERVER_IP = "127.0.0.1"; 
 
 const WS_URL = `ws://${SERVER_IP}:5001/`;
 
