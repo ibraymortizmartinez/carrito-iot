@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.T.A.R.K. - Tactical Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='assets/img/volante.png') }}" type="image/png">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-950 text-slate-400 font-mono min-h-screen flex flex-col p-4">
+
+    <header class="border-b border-slate-800 pb-3 mb-6 flex justify-between items-center max-w-6xl mx-auto w-full">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+            <div>
+                <h1 class="text-sm font-bold tracking-widest text-slate-100">S.T.A.R.K. ROVER - INTEGRATED OPERATIONS HUD</h1>
+                <p class="text-[10px] text-slate-500">ESTADO DEL ENLACE // WEBSOCKET: <span id="ws-status" class="text-red-500 font-bold animate-pulse">OFFLINE</span></p>
+            </div>
+        </div>
+        <div class="text-[10px] bg-slate-900 border border-slate-800 px-3 py-1 rounded text-slate-400" id="sys-clock">
+            00:00:00 UTC
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-4">
+        
+        <section class="lg:col-span-6 flex flex-col justify-between bg-slate-900/40 border border-slate-800 rounded p-4">
+            <div class="border-b border-slate-800 pb-2 mb-4 flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-gamepad mr-2 text-slate-500"></i> Sistemas de Navegación Coaxial</span>
+                <span class="text-[9px] text-slate-500 font-bold">CRUISE_MODE_ACTIVE</span>
+            </div>
+
+            <div class="bg-slate-950/60 border border-slate-900 p-4 rounded mb-4">
+                <div class="flex justify-between text-[11px] mb-2 font-semibold tracking-wider text-slate-400">
+                    <span>POTENCIA DEL PROPULSOR (VELOCIDAD)</span>
+                    <span id="speed-display" class="text-emerald-400 font-bold">255 PWM</span>
+                </div>
+                <input type="range" id="speed-range" min="0" max="255" value="255" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+            </div>
+
+            <div class="grid grid-cols-5 gap-2 p-2 bg-slate-950/40 border border-slate-900 rounded mb-4 flex-1 items-center">
+                
+                <button onclick="send('DIAG_IA')" class="stealth-btn py-5 rounded text-xs flex flex-col items-center gap-1"><i class="fa-solid fa-arrow-up-left"></i><span class="text-[7px]">DIAG IA</span></button>
+                <div></div>
+                <button onclick="send('ADELANTE')" class="stealth-btn py-5 rounded text-sm"><i class="fa-solid fa-chevron-up"></i></button>
+                <div></div>
+                <button onclick="send('DIAG_DA')" class="stealth-btn py-5 rounded text-xs flex flex-col items-center gap-1"><i class="fa-solid fa-arrow-up-right"></i><span class="text-[7px]">DIAG DA</span></button>
+
+                <button onclick="send('IZQUIERDA')" class="stealth-btn py-5 rounded text-xs flex flex-col items-center gap-1"><i class="fa-solid fa-rotate-left"></i><span class="text-[7px]">PIV IZQ</span></button>
+                <button onclick="send('IZQUIERDA')" class="stealth-btn py-5 rounded text-sm"><i class="fa-solid fa-arrow-left"></i></button>
+                <button onclick="send('STOP')" class="btn-core-stop py-5 rounded flex items-center justify-center bg-red-950/40 border border-red-500/50 text-red-400 hover:bg-red-500/20 transition-all"><i class="fa-solid fa-radiation text-lg"></i></button>
+                <button onclick="send('DERECHA')" class="stealth-btn py-5 rounded text-sm"><i class="fa-solid fa-arrow-right"></i></button>
+                <button onclick="send('DERECHA')" class="stealth-btn py-5 rounded text-xs flex flex-col items-center gap-1"><i class="fa-solid fa-rotate-right"></i><span class="text-[7px]">PIV DER</span></button>
+
+                <button onclick="send('DIAG_IR')" class="stealth-btn py-5 rounded text-xs flex flex-col items-center gap-1"><i class="fa-solid fa-arrow-down-left"></i><span class="text-[7px]">DIAG IR</span></button>
+                <div></div>
+                <button onclick="send('ATRAS')" class="stealth-btn py-5 rounded text-sm"><i class="fa-solid fa-chevron-down"></i></button>
+                <div></div>
+                <button onclick="send('DIAG_DR')" class="stealth-btn py-5 rounded text-xs flex flex-col items-center gap-1"><i class="fa-solid fa-arrow-down-right"></i><span class="text-[7px]">DIAG DR</span></button>
+            </div>
+
+            <button id="btn-record" onclick="toggleRecording()" class="w-full bg-slate-950 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 p-3 rounded text-[11px] tracking-widest font-bold uppercase transition-all mb-2">
+                <i class="fa-solid fa-circle mr-2 text-[9px]"></i> Grabar Ruta Demo
+            </button>
+            <button onclick="ejecutarModoDemo()" class="w-full bg-slate-950 border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 p-3 rounded text-[11px] tracking-widest font-bold uppercase transition-all">
+                <i class="fa-solid fa-terminal mr-2 text-[10px]"></i> Ejecutar Secuencia Histórica
+            </button>
+        </section>
+
+        <section class="lg:col-span-6 flex flex-col bg-slate-900/40 border border-slate-800 rounded p-4">
+            <div class="border-b border-slate-800 pb-2 mb-4 flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-chart-line mr-2 text-slate-500"></i> Telemetría Crítica Unificada</span>
+                <span class="text-[8px] bg-slate-950 border border-slate-800 px-2 py-0.5 rounded text-cyan-400 font-bold">SQL FEED</span>
+            </div>
+
+            <div class="bg-slate-950/40 border border-slate-900 rounded p-4 flex flex-col items-center justify-center text-center relative overflow-hidden mb-4">
+                <div class="w-32 h-32 rounded-full border border-slate-800 flex items-center justify-center relative mb-2">
+                    <div id="radar-pulse" class="absolute w-full h-full rounded-full border border-emerald-500/20 bg-emerald-500/5 animate-ping"></div>
+                    <div class="w-20 h-20 rounded-full border border-slate-800 flex flex-col items-center justify-center bg-slate-950/90">
+                        <span class="text-xl font-black text-slate-200" id="radar-distance">-- CM</span>
+                    </div>
+                </div>
+                <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase" id="radar-alert">// SENSOR OPERANDO NORMALMENTE</p>
+            </div>
+
+            <div class="flex-1 flex flex-col justify-between space-y-2">
+                <span class="text-[10px] font-bold text-slate-500 tracking-wider block mb-1 uppercase">// AUDITORÍA DE DATOS DE LA PLATAFORMA (LOG HISTÓRICO)</span>
+                
+                <div id="log-container" class="flex-1 flex flex-col gap-1 overflow-y-auto max-h-[180px] p-2 border border-slate-900 bg-slate-950/50 rounded">
+                    <div class="p-4 text-slate-500 italic text-center text-[10px]">
+                        Esperando transmisión activa desde el servidor de WebSockets...
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/websocket.js"></script>
+    <script src="assets/js/main.js'"></script>
+</body>
+</html>
